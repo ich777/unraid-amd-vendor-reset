@@ -1,0 +1,119 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN [
+  <!ENTITY name      "vendor-reset">
+  <!ENTITY author    "ich777">
+  <!ENTITY version   "2020.11.26">
+  <!ENTITY launch    "Settings/vendor-reset">
+  <!ENTITY gitURL    "https://github.com/&author;/unraid-&name;/raw/master">
+  <!ENTITY pluginURL "&gitURL;/&name;.plg">
+  <!ENTITY md5       "9d52cc319b7d2190626f06ac747f509a">
+  <!ENTITY plugin    "/boot/config/plugins/&name;">
+  <!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+]>
+
+<PLUGIN  name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.9.0-beta31" icon="retweet">
+
+<CHANGES>
+
+###2020.11.26
+- Initial release
+
+</CHANGES>
+
+<FILE Run="/bin/bash">
+<INLINE>
+rm -f $(ls /boot/config/plugins/&name;/&name;*.txz 2>/dev/null|grep -v '&version;')
+</INLINE>
+</FILE>
+
+<FILE Name="/boot/config/plugins/&name;/&name;-&version;.txz" Run="upgradepkg --install-new">
+<URL>&gitURL;/packages/&name;-&version;.txz</URL>
+<MD5>&md5;</MD5>
+</FILE>
+
+<FILE Name="&emhttp;/README.md">
+<INLINE>
+**AMD Vendor-Reset Patch**
+
+This package contains the Vendor-Reset module for Polaris and Vega10 cards by Adam Madsen & Geoffrey McRae. You can get more details here: https://github.com/gnif/vendor-reset
+</INLINE>
+</FILE>
+
+<FILE Run="/bin/bash">
+<INLINE>
+
+KERNEL_V="$(uname -r)"
+PACKAGE="vendorreset"
+DL_URL="https://github.com/ich777/unraid-plugins-repo/releases/download/$KERNEL_V"
+
+if [ ! -d "&plugin;/packages/${KERNEL_V%%-*}" ]; then
+  mkdir -p "&plugin;/packages/${KERNEL_V%%-*}"
+fi
+
+#Check for old packages
+rm -rf $(ls -d &plugin;/packages/* | grep -v "${KERNEL_V%%-*}")
+
+download() {
+#Download vendor-reset
+if wget -q -nc --show-progress --progress=bar:force:noscroll -O "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz" "${DL_URL}/${PACKAGE}-1.txz" ; then
+  if [ "$(md5sum "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz" | cut -d ' ' -f1)" != "$(wget -qO- "${DL_URL}/${PACKAGE}-1.txz.md5" | cut -d ' ' -f1)" ]; then
+    echo
+    echo "---CHECKSUM ERROR!---"
+    exit 1
+  fi
+  echo
+  echo "---------------------Sucessfully downloaded vendor-reset----------------------"
+else
+  echo
+  echo "-------------------------Can't download vendor-reset--------------------------"
+  exit 1
+fi
+}
+
+check() {
+if [ ! -f "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz" ]; then
+  echo
+  echo "---------------------------Downloading vendor-reset---------------------------"
+  echo "----------This could take some time, please don't close this window!----------"
+  download
+else
+  echo
+  echo "--------------------------vendor-reset found locally--------------------------"
+fi
+}
+
+install() {
+#Install vendor-reset
+/sbin/installpkg "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz"
+}
+
+#Check if vendor-reset is allready downloaded
+check
+install > /dev/null
+
+echo
+echo "-------------------------Installation of vendor-reset-------------------------"
+echo
+
+</INLINE>
+</FILE>
+
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+
+echo "----------------------------------------"
+echo "-------Uninstalling vendor-reset--------"
+echo "----------------------------------------"
+# Remove plugin related files
+removepkg &name;-&version;
+rm -rf /usr/local/emhttp/plugins/&name;
+rm -rf &plugin;
+echo
+echo "----------------------------------------------------------------------------"
+echo "-----------vendor-reset uninstalled, please reboot your server!-------------"
+echo "----------------------------------------------------------------------------"
+echo
+
+</INLINE>
+</FILE>
+</PLUGIN>
