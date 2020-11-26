@@ -1,2 +1,0 @@
-# unraid-amd-vendor-reset
-
