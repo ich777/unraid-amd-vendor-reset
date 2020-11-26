@@ -85,6 +85,8 @@ fi
 install() {
 #Install vendor-reset
 /sbin/installpkg "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz"
+depmod -a
+modprobe vendor_reset
 }
 
 #Check if vendor-reset is allready downloaded
