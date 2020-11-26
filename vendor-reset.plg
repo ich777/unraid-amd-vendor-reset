@@ -1,6 +1,6 @@
 <?xml version='1.0' standalone='yes'?>
 <!DOCTYPE PLUGIN [
-  <!ENTITY name      "vendor-reset">
+  <!ENTITY name      "vendorreset">
   <!ENTITY author    "ich777">
   <!ENTITY version   "2020.11.26">
   <!ENTITY launch    "Settings/vendor-reset">
