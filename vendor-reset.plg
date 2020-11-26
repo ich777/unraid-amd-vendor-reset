@@ -35,7 +35,7 @@ rm -f $(ls /boot/config/plugins/&name;/&name;*.txz 2>/dev/null|grep -v '&version
 <INLINE>
 **AMD Vendor-Reset Patch**
 
-This package contains the Vendor-Reset module for Polaris and Vega10 cards by Adam Madsen & Geoffrey McRae. You can get more details here: https://github.com/gnif/vendor-reset
+This package contains the Vendor-Reset module for Polaris and Vega10 cards by Adam Madsen and Geoffrey McRae. You can get more details here: https://github.com/gnif/vendor-reset
 </INLINE>
 </FILE>
 
