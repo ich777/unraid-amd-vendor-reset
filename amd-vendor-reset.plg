@@ -1,0 +1,129 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN [
+  <!ENTITY name      "AMD-Vendor-Reset">
+  <!ENTITY author    "ich777">
+  <!ENTITY version   "2021.05.25">
+  <!ENTITY gitURL    "https://github.com/&author;/unraid-amd-vendor-reset/raw/master">
+  <!ENTITY pluginURL "&gitURL;/amd-vendor-reset.plg">
+  <!ENTITY plugin    "/boot/config/plugins/amd-vendor-reset">
+  <!ENTITY emhttp    "/usr/local/emhttp/plugins/amd-vendor-reset">
+]>
+
+<PLUGIN  name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" min="6.10.0-beta17">
+
+<CHANGES>
+
+###2021.05.25
+- Initial release
+
+</CHANGES>
+
+<FILE Name="&emhttp;/images/amd-vendor-reset.png">
+<URL>https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/gnif.png</URL>
+</FILE>
+
+<FILE Name="&emhttp;/README.md">
+<INLINE>
+**AMD Vendor-Reset Patch**
+
+This package contains the Vendor-Reset module for Polaris, Vega10/20 and Navi10/12/14 cards by Adam Madsen and Geoffrey McRae. You can get more details here: https://github.com/gnif/vendor-reset
+</INLINE>
+</FILE>
+
+<FILE Run="/bin/bash">
+<INLINE>
+
+KERNEL_V="$(uname -r)"
+PACKAGE="gnif_vendor_reset"
+DL_URL="https://github.com/ich777/unraid-plugins-repo/releases/download/$KERNEL_V"
+
+#Wait for Network and timeout after 30 seconds
+HOST="8.8.8.8"
+for i in {1..10}; do
+  ping -c1 $HOST &amp;> /dev/null &amp;&amp; break;
+done
+
+if [ ! -d "&plugin;/packages/${KERNEL_V%%-*}" ]; then
+  mkdir -p "&plugin;/packages/${KERNEL_V%%-*}"
+fi
+
+#Check for old packages
+rm -rf $(ls -d &plugin;/packages/* | grep -v "${KERNEL_V%%-*}")
+
+download() {
+#Download vendor-reset
+if wget -q -nc --show-progress --progress=bar:force:noscroll -O "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz" "${DL_URL}/${PACKAGE}-1.txz" ; then
+  if [ "$(md5sum "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz" | cut -d ' ' -f1)" != "$(wget -qO- "${DL_URL}/${PACKAGE}-1.txz.md5" | cut -d ' ' -f1)" ]; then
+    echo
+    echo "-----ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR------"
+    echo "--------------------------------CHECKSUM ERROR!---------------------------------"
+    exit 1
+  fi
+  echo
+  echo "------------Successfully downloaded vendor-reset, please wait...!-------------"
+else
+  echo
+  echo "-----ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR-----"
+  echo "------------------------Can't download vendor-reset----------------------------"
+  exit 1
+fi
+}
+
+check() {
+if [ ! -f "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz" ]; then
+  echo
+  echo "-------------------Downloading vendor-reset, please wait...!------------------"
+  echo "----------This could take some time, please don't close this window!----------"
+  download
+else
+  echo
+  echo "-------------------------vendor-reset found locally!--------------------------"
+fi
+}
+
+install() {
+#Install vendor-reset
+/sbin/installpkg "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz"
+depmod -a
+modprobe vendor_reset
+}
+
+#Check if vendor-reset is allready downloaded
+check
+
+
+if [ ! -z "$(lsmod | grep "vendor_reset")" ]; then
+  modprobe vendor_reset
+  echo
+  echo "--------------Nothing to do, vendor-reset is already installed!---------------"
+  echo
+else
+  echo
+  echo "-------------------Installing vendor-reset, please wait...!-------------------"
+  install > /dev/null
+  echo
+  echo "------------------Installation of vendor-reset successful---------------------"
+  echo
+fi
+
+</INLINE>
+</FILE>
+
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+
+echo "----------------------------------------"
+echo "-------Uninstalling vendor-reset--------"
+echo "----------------------------------------"
+# Remove plugin related files
+rm -rf &emhttp;
+rm -rf &plugin;
+echo
+echo "----------------------------------------------------------------------------"
+echo "-----------vendor-reset uninstalled, please reboot your server!-------------"
+echo "----------------------------------------------------------------------------"
+echo
+
+</INLINE>
+</FILE>
+</PLUGIN>
