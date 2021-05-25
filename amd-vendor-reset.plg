@@ -88,9 +88,8 @@ depmod -a
 modprobe vendor_reset
 }
 
-#Check if vendor-reset is allready downloaded
+#Check if vendor-reset is already downloaded
 check
-
 
 if [ ! -z "$(lsmod | grep "vendor_reset")" ]; then
   modprobe vendor_reset
@@ -107,8 +106,8 @@ else
 fi
 
 #Install icon
-if [ -f "&emhttp;/images/AMD-Vendor-Reset.png ]; then
-  if [ -d "&emhttp;/images" ]; then
+if [ ! -f "&emhttp;/images/AMD-Vendor-Reset.png ]; then
+  if [ ! -d "&emhttp;/images" ]; then
     mkdir -p &emhttp;/images
   fi
   cp &plugin;/AMD-Vendor-Reset.png &emhttp;/images/
