@@ -106,7 +106,7 @@ else
 fi
 
 #Install icon
-if [ ! -f "&emhttp;/images/AMD-Vendor-Reset.png ]; then
+if [ ! -f "&emhttp;/images/AMD-Vendor-Reset.png" ]; then
   if [ ! -d "&emhttp;/images" ]; then
     mkdir -p &emhttp;/images
   fi
