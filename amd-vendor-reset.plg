@@ -3,7 +3,7 @@
   <!ENTITY name      "AMD-Vendor-Reset">
   <!ENTITY author    "ich777">
   <!ENTITY version   "2021.05.25">
-  <!ENTITY gitURL    "https://github.com/&author;/unraid-amd-vendor-reset/raw/master">
+  <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-amd-vendor-reset/master">
   <!ENTITY pluginURL "&gitURL;/amd-vendor-reset.plg">
   <!ENTITY plugin    "/boot/config/plugins/amd-vendor-reset">
   <!ENTITY emhttp    "/usr/local/emhttp/plugins/amd-vendor-reset">
@@ -24,7 +24,7 @@
 
 <FILE Name="&emhttp;/README.md">
 <INLINE>
-**AMD Vendor-Reset Patch**
+**AMD Vendor-Reset**
 
 This package contains the Vendor-Reset module for Polaris, Vega10/20 and Navi10/12/14 cards by Adam Madsen and Geoffrey McRae. You can get more details here: https://github.com/gnif/vendor-reset
 </INLINE>
