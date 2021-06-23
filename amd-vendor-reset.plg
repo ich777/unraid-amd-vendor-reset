@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "AMD-Vendor-Reset">
   <!ENTITY author    "ich777">
-  <!ENTITY version   "2021.05.25">
+  <!ENTITY version   "2021.06.23">
   <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-amd-vendor-reset/master">
   <!ENTITY pluginURL "&gitURL;/amd-vendor-reset.plg">
   <!ENTITY plugin    "/boot/config/plugins/amd-vendor-reset">
@@ -13,6 +13,9 @@
 
 <CHANGES>
 
+###2021.06.23
+- Changed package download repo
+
 ###2021.05.25
 - Initial release
 
@@ -20,9 +23,9 @@
 
 <FILE Name="&emhttp;/README.md">
 <INLINE>
-**AMD Vendor-Reset**
+**AMD Vendor Reset**
 
-This package contains the Vendor-Reset module for Polaris, Vega10/20 and Navi10/12/14 cards by Adam Madsen and Geoffrey McRae. You can get more details here: https://github.com/gnif/vendor-reset
+This package contains the Vendor Reset module for Polaris, Vega10/20 and Navi10/12/14 cards by Adam Madsen and Geoffrey McRae. You can get more details here: https://github.com/gnif/vendor-reset
 </INLINE>
 </FILE>
 
@@ -30,8 +33,8 @@ This package contains the Vendor-Reset module for Polaris, Vega10/20 and Navi10/
 <INLINE>
 
 KERNEL_V="$(uname -r)"
-PACKAGE="gnif_vendor_reset"
-DL_URL="https://github.com/ich777/unraid-plugins-repo/releases/download/$KERNEL_V"
+PACKAGE="gnif_vendor_reset-plugin-${KERNEL_V}"
+DL_URL="https://github.com/ich777/unraid-amd-vendor-reset/releases/download/$KERNEL_V"
 
 #Wait for Network and timeout after 30 seconds
 HOST="8.8.8.8"
@@ -47,7 +50,7 @@ fi
 rm -rf $(ls -d &plugin;/packages/* | grep -v "${KERNEL_V%%-*}")
 
 if [ ! -f "&plugin;/AMD-Vendor-Reset.png" ]; then
-  wget -q -nc --show-progress --progress=bar:force:noscroll -O "&plugin;/AMD-Vendor-Reset.png" "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/gnif.png"
+  wget -q -nc --show-progress --progress=bar:force:noscroll -O "&plugin;/&name;.png" "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/gnif.png"
 fi
 
 download() {
@@ -60,11 +63,11 @@ if wget -q -nc --show-progress --progress=bar:force:noscroll -O "&plugin;/packag
     exit 1
   fi
   echo
-  echo "------------Successfully downloaded vendor-reset, please wait...!-------------"
+  echo "----------Successfully downloaded AMD Vendor Reset, please wait...!-----------"
 else
   echo
   echo "-----ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR-----"
-  echo "------------------------Can't download vendor-reset----------------------------"
+  echo "----------------------Can't download AMD Vendor Reset--------------------------"
   exit 1
 fi
 }
@@ -72,45 +75,45 @@ fi
 check() {
 if [ ! -f "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz" ]; then
   echo
-  echo "-------------------Downloading vendor-reset, please wait...!------------------"
+  echo "-----------------Downloading AMD Vendor Reset, please wait...!----------------"
   echo "----------This could take some time, please don't close this window!----------"
   download
 else
   echo
-  echo "-------------------------vendor-reset found locally!--------------------------"
+  echo "-----------------------AMD Vendor Reset found locally!------------------------"
 fi
 }
 
 install() {
-#Install vendor-reset
+#Install AMD Vendor Reset
 /sbin/installpkg "&plugin;/packages/${KERNEL_V%%-*}/${PACKAGE}-1.txz"
 depmod -a
 modprobe vendor_reset
 }
 
-#Check if vendor-reset is already downloaded
+#Check if AMD Vendor Reset is already downloaded
 check
 
 if [ ! -z "$(lsmod | grep "vendor_reset")" ]; then
   modprobe vendor_reset
   echo
-  echo "--------------Nothing to do, vendor-reset is already installed!---------------"
+  echo "------------Nothing to do, AMD Vendor Reset is already installed!-------------"
   echo
 else
   echo
-  echo "-------------------Installing vendor-reset, please wait...!-------------------"
+  echo "-----------------Installing AMD Vendor Reset, please wait...!-----------------"
   install > /dev/null
   echo
-  echo "------------------Installation of vendor-reset successful---------------------"
+  echo "----------------Installation of AMD Vendor Reset successful-------------------"
   echo
 fi
 
 #Install icon
-if [ ! -f "&emhttp;/images/AMD-Vendor-Reset.png" ]; then
+if [ ! -f "&emhttp;/images/&name;.png" ]; then
   if [ ! -d "&emhttp;/images" ]; then
     mkdir -p &emhttp;/images
   fi
-  cp &plugin;/AMD-Vendor-Reset.png &emhttp;/images/
+  cp &plugin;/&name;.png &emhttp;/images/
 fi
 
 </INLINE>
@@ -120,14 +123,14 @@ fi
 <INLINE>
 
 echo "----------------------------------------"
-echo "-------Uninstalling vendor-reset--------"
+echo "-----Uninstalling AMD Vendor Reset------"
 echo "----------------------------------------"
 # Remove plugin related files
 rm -rf &emhttp;
 rm -rf &plugin;
 echo
 echo "----------------------------------------------------------------------------"
-echo "-----------vendor-reset uninstalled, please reboot your server!-------------"
+echo "---------AMD Vendor Reset uninstalled, please reboot your server!-----------"
 echo "----------------------------------------------------------------------------"
 echo
 
