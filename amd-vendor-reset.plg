@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "AMD-Vendor-Reset">
   <!ENTITY author    "ich777">
-  <!ENTITY version   "2021.06.23">
+  <!ENTITY version   "2022.03.21">
   <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-amd-vendor-reset/master">
   <!ENTITY pluginURL "&gitURL;/amd-vendor-reset.plg">
   <!ENTITY plugin    "/boot/config/plugins/amd-vendor-reset">
@@ -12,6 +12,9 @@
 <PLUGIN  name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" min="6.10.0-beta17">
 
 <CHANGES>
+
+###2022.03.21
+- Added change for reset_method for Kernel 5.15+
 
 ###2021.06.23
 - Changed package download repo
@@ -106,6 +109,18 @@ else
   echo
   echo "----------------Installation of AMD Vendor Reset successful-------------------"
   echo
+fi
+
+#Change reset_method for installed AMD VGA adapters for Kernel 5.15+
+#https://github.com/gnif/vendor-reset/issues/46#issuecomment-992282166
+TARGET_V="5.14.99"
+COMPARE="$(uname -r | cut -d '-' -f1)
+$TARGET_V"
+if [ "$TARGET_V" != "$(echo "$COMPARE" | sort -V | tail -1)" ]; then
+  while read -r line
+  do
+    echo 'device_specific' &gt; $(find /sys/bus/pci/devices/* -name "*$line")/reset_method
+  done &lt;&lt;&lt; "$(lspci -nn | grep -E "VGA compatible controller|Display controller" | grep -E "AMD|ATI|Advanced Micro Devices" | awk '{print $1}')"
 fi
 
 #Install icon
