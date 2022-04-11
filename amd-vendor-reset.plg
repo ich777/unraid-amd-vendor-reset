@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "AMD-Vendor-Reset">
   <!ENTITY author    "ich777">
-  <!ENTITY version   "2022.03.21">
+  <!ENTITY version   "2022.04.11">
   <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-amd-vendor-reset/master">
   <!ENTITY pluginURL "&gitURL;/amd-vendor-reset.plg">
   <!ENTITY plugin    "/boot/config/plugins/amd-vendor-reset">
