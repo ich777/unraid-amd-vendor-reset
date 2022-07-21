@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "AMD-Vendor-Reset">
   <!ENTITY author    "ich777">
-  <!ENTITY version   "2022.07.19">
+  <!ENTITY version   "2022.07.21">
   <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-amd-vendor-reset/master">
   <!ENTITY pluginURL "&gitURL;/amd-vendor-reset.plg">
   <!ENTITY plugin    "/boot/config/plugins/amd-vendor-reset">
@@ -13,6 +13,10 @@
 <PLUGIN  name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" min="6.10.0-beta17">
 
 <CHANGES>
+
+###2022.07.21
+- Version detection from package via GitHub API
+- Save md5 in packages directory
 
 ###2022.07.19
 - Necessary changes for unRAID 6.11+
@@ -41,8 +45,9 @@ This package contains the Vendor Reset module for Polaris, Vega10/20 and Navi10/
 
 download() {
 # Download vendor-reset
-if wget -q -nc --show-progress --progress=bar:force:noscroll -O "&packages;/${KERNEL_V%%-*}/${PACKAGE}-1.txz" "${DL_URL}/${PACKAGE}-1.txz" ; then
-  if [ "$(md5sum "&packages;/${KERNEL_V%%-*}/${PACKAGE}-1.txz" | cut -d ' ' -f1)" != "$(wget -qO- "${DL_URL}/${PACKAGE}-1.txz.md5" | cut -d ' ' -f1)" ]; then
+if wget -q -nc --show-progress --progress=bar:force:noscroll -O "&packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}" "${DL_URL}/${LAT_PACKAGE}" ; then
+  wget -q -nc --show-progress --progress=bar:force:noscroll -O "&packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}.md5" "${DL_URL}/${LAT_PACKAGE}.md5"
+  if [ "$(md5sum &packages;/${KERNEL_V%%-*}/${LAT_PACKAGE} | awk '{print $1}')" != "$(cat &packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}.md5 | awk '{print $1}')" ]; then
     echo
     echo "-----ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR------"
     echo "--------------------------------CHECKSUM ERROR!---------------------------------"
@@ -61,7 +66,8 @@ fi
 }
 
 check() {
-if [ ! -f "&packages;/${KERNEL_V%%-*}/${PACKAGE}-1.txz" ]; then
+if ! ls -1 &packages;/${KERNEL_V%%-*}/ | grep -q "${PACKAGE}" ; then
+  LAT_PACKAGE="$(wget -qO- https://api.github.com/repos/ich777/unraid-amd-vendor-reset/releases/tags/${KERNEL_V} | jq -r '.assets[].name' | grep "${PACKAGE}" | grep -E -v '\.md5$' | sort -V | tail -1)"
   echo
   echo "-----------------Downloading AMD Vendor Reset, please wait...!----------------"
   echo "----------This could take some time, please don't close this window!----------"
@@ -74,7 +80,7 @@ fi
 
 install() {
 # Install AMD Vendor Reset
-/sbin/installpkg "&packages;/${KERNEL_V%%-*}/${PACKAGE}-1.txz"
+/sbin/installpkg "&packages;/${KERNEL_V%%-*}/${PACKAGE}*.txz"
 depmod -a
 }
 
@@ -85,7 +91,7 @@ activate() {
 
 # Define Variables
 KERNEL_V="$(uname -r)"
-PACKAGE="gnif_vendor_reset-plugin-${KERNEL_V}"
+PACKAGE="gnif_vendor_reset"
 DL_URL="https://github.com/ich777/unraid-amd-vendor-reset/releases/download/$KERNEL_V"
 
 if [ ! -d "&packages;/${KERNEL_V%%-*}" ]; then
